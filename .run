@@ -1,0 +1,4 @@
+#!/bin/bash
+
+STORE=
+shopify theme dev --store $STORE
