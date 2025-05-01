@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Incluye manualmente otros directorios si hiciera falta */
+@source "../layout/**/*.liquid";
+@source "../templates/**/*.liquid";
+@source "../sections/**/*.liquid";
+@source "../snippets/**/*.liquid";
+@source "../assets/**/*.js";
