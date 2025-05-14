@@ -1,32 +1,32 @@
-# 📚 Instrucciones de desarrollo
+# 📚 Development Guidelines
 
-Este repositorio forma parte de una arquitectura modular de temas para Shopify.  
-A continuación se describe el flujo de trabajo establecido:
+This repository is part of a modular architecture for Shopify theme development.  
+Below is the defined workflow:
 
-## Estructura de repositorios y ramas
+## Repository and Branch Structure
 
-- **`base`** → Repositorio principal, fork del tema oficial **Dawn** de Shopify.
-  - **`base.base`** → Rama donde se almacenan todos los **componentes y configuraciones comunes** a todos los temas hijos.
-- **`natural`** → Repositorio hijo, fork de **`base.base`**.
-  - **`natural.base`** → Rama principal del tema hijo **Natural**.
+- **`base`** → Main repository, forked from Shopify’s official **Dawn** theme.
+  - **`base.base`** → Branch where all **common components and configurations** for child themes are stored.
+- **`natural`** → Child repository, forked from **`base.base`**.
+  - **`natural.base`** → Main branch for the **Natural** child theme.
 
-## Principios de trabajo
+## Core Principles
 
-1. El repositorio **base** se utiliza únicamente para mantener componentes reutilizables y configuraciones comunes.
-2. Los desarrollos específicos de cada tema hijo se realizan en su propio repositorio.
-3. **No se debe conectar directamente la rama `base` con Shopify**.  
-   Shopify puede modificar el código automáticamente al usar el page builder, y estos cambios no deben mezclarse con `base.base` salvo revisión controlada.
+1. The **base** repository is used exclusively to maintain reusable components and shared configurations.
+2. Theme-specific development is carried out within each child repository.
+3. **Do not connect the `base` branch directly to Shopify.**  
+   Shopify may automatically modify the code when using the page builder, and these changes should not be merged into `base.base` unless thoroughly reviewed.
 
-## Flujo de trabajo recomendado
+## Recommended Workflow
 
-1. Trabajar desde una rama alternativa (`dev`) que sirva como espejo de `base`.
-2. Crear ramas de tipo **feature** para cada nuevo desarrollo (`feature/mi-nueva-funcionalidad`).
-3. Conectar las ramas alternativas (`dev`, `feature/*`) a Shopify para desarrollo y pruebas.
-4. Realizar **cherry-pick** selectivo desde las ramas secundarias hacia `natural.base`.
-5. Realizar **pull request** desde `natural.base` hacia `base.base` para compartir mejoras comunes con el repositorio padre.
+1. Work from an alternative branch (`dev`) that mirrors `base`.
+2. Create **feature branches** for every new development (`feature/your-new-feature`).
+3. Connect alternative branches (`dev`, `feature/*`) to Shopify for real-time development and testing.
+4. Use **cherry-pick** to selectively merge changes from secondary branches into `natural.base`.
+5. Create **pull requests** from `natural.base` to `base.base` to share common improvements with the parent repository.
 
-## Notas importantes
+## Important Notes
 
-- Los cambios no revisados del editor visual de Shopify **no deben** integrarse automáticamente en `base.base`.
-- Sólo deben propagarse al repositorio base los componentes o configuraciones que sean útiles para todos los temas derivados.
-- Mantener el repositorio `base` lo más limpio y estable posible.
+- Unreviewed changes made via Shopify's visual editor **must not** be merged automatically into `base.base`.
+- Only components and configurations useful across all child themes should be pushed to the parent repository.
+- Keep the **base** repository as clean, stable, and reusable as possible.
