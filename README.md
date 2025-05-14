@@ -8,12 +8,13 @@ Below is the defined workflow:
 - **`base`** → Main repository, forked from Shopify’s official **Dawn** theme.
   - **`base.base`** → Branch where all **common components and configurations** for child themes are stored.
 - **`natural`** → Child repository, forked from **`base.base`**.
-  - **`natural.base`** → Main branch for the **Natural** child theme.
+  - **`natural.base`** → Main branch, always synced with `base.base`.
+  - **`natural.natural`** → Branch for theme-specific customizations.
 
 ## Core Principles
 
 1. The **base** repository is used exclusively to maintain reusable components and shared configurations.
-2. Theme-specific development is carried out within each child repository.
+2. Theme-specific development is carried out within each child theme repository.
 3. **Do not connect the `base` branch directly to Shopify.**  
    Shopify may automatically modify the code when using the page builder, and these changes should not be merged into `base.base` unless thoroughly reviewed.
 
@@ -39,12 +40,6 @@ We use [Tailwind CSS v4](https://tailwindcss.com/docs/installation) with native 
 
 The Tailwind setup is intentionally simple and designed to integrate smoothly with Shopify themes.
 
-## Important Notes
-
-- Unreviewed changes made via Shopify's visual editor **must not** be merged automatically into `base.base`.
-- Only components and configurations useful across all child themes should be pushed to the parent repository.
-- Keep the **base** repository as clean, stable, and reusable as possible.
-
 ## Project Repositories
 
 In addition to the `base` repository and the child themes (`natural`, etc.), an additional layer is defined for real-world projects that use these themes.  
@@ -52,24 +47,33 @@ The objective is to allow each project to maintain its own version control and c
 
 ### Structure and workflow
 
-1. A **real project** (e.g., `acme`) starts as a **fork of the chosen child theme** (e.g., `natural`), specifically from the `natural.natural` branch.
-2. Inside the project repository (`acme`), a dedicated branch is created for customer-specific customizations, following the naming convention `[project].[project]`.  
-   Example: for the ACME project → `acme.acme`.
+1. A **real project** (e.g., `acme`) starts as a **fork of the chosen child theme** (e.g., `natural`).
+2. The project repository (`acme`) includes:
+   - `acme.natural`: synchronized copy of `natural.natural`. This branch should **never be modified** manually.
+   - `acme.acme`: branch for customer-specific customizations.
 3. The `acme.acme` branch is the only branch used to apply customer-specific customizations:
    - Colors, logos, images
    - Component customization
    - Shopify-managed content adjustments
-4. The `natural.natural` branch (or the selected child theme branch) must be kept up to date as a reference but **must not be directly modified** within the project.
+4. Periodically, `acme.natural` should be updated from upstream to receive improvements from the child theme.
 5. Projects are **not expected** to create pull requests back to the child theme repository.  
    Only if a project team detects a valuable improvement that could be reused across all themes, a pull request can be submitted under the following conditions:
    - Client-specific customizations must **never** be pushed upstream.
    - Only general improvements or reusable fixes should be proposed.
 6. It is recommended to tag stable versions of the project (`acme.acme`) before making significant changes to ensure traceability and easier future integrations.
 
-### Inheritance flow
+### Theme and project hierarchy
 
-base.base → natural.base → natural.natural → acme.acme
+base repository
+└── base.base  (shared components and configuration)
 
+child theme repository (e.g., natural)
+├── natural.base     (synced with base.base)
+└── natural.natural  (theme-specific customizations)
+
+project repository (e.g., acme)
+├── acme.natural     (synced with natural.natural, do not modify directly)
+└── acme.acme        (customer-specific customizations)
 
 Each level inherits from the previous one but **maintains full independence for local customizations**.
 
