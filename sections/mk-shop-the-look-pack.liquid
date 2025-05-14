@@ -1,0 +1,276 @@
+{%- comment -%} sections/mk-shop-the-look-pack.liquid {%- endcomment -%}
+
+<div
+  x-data="shopTheLookPack()"
+  x-init="init()"
+  x-cloak
+  class="color-scheme color-scheme--{{ section.settings.color_scheme }}"
+>
+  <!-- Contenedor principal -->
+  <div
+    class="shop-the-look-pack page-width flex flex-col md:flex-row gap-6 items-stretch color-scheme color-scheme--{{ section.settings.color_scheme }}"
+    :class="imagePosition === 'left' ? 'md:flex-row' : 'md:flex-row-reverse'"
+  >
+    <!-- Imagen principal con puntos -->
+    <div class="flex items-center justify-center w-full md:w-[65%] h-full">
+      <div class="relative flex items-center justify-center w-[520px] h-[520px]">
+        <!-- Franja vertical -->
+        <div
+          class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px]"
+          :style="`background:${imageBgColor}`"
+        >
+          <span class="sr-only">Decorativo</span>
+        </div>
+        <!-- Imagen principal y hotspots -->
+        <div class="relative w-[520px] h-[380px] z-10 flex items-center justify-center">
+          <img
+            :src="imageUrl"
+            alt="Shop the Look Pack"
+            class="w-full h-full object-cover border border-gray-200 shadow-lg"
+            width="520"
+            height="380"
+          >
+          <!-- Hotspots -->
+          <template x-for="(point, i) in points" :key="i">
+            <a
+              :href="point.product.url"
+              @mouseenter="scrollToProduct(i)"
+              class="absolute rounded-full flex items-center justify-center font-bold text-lg text-white border-4 border-white shadow-lg cursor-pointer transition-transform duration-200 ease-in-out z-20"
+              x-bind:style="
+                `top: ${point.y}%;
+                left: ${point.x}%;
+                width: ${hotspotSize}px;
+                height: ${hotspotSize}px;
+                background-color: ${hotspotColor};`
+              "
+              :class="'hover:scale-110'"
+              aria-label="Ver producto"
+            >
+              <span class="drop-shadow" x-text="i + 1"></span>
+            </a>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de productos -->
+    <div class="w-full md:w-[35%] flex items-center justify-center h-full relative">
+      <div
+        class="relative w-full max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+        x-ref="productPanel"
+        @scroll="updateScrollIndicators()"
+      >
+        <!-- Título y descripción -->
+        <div class="mb-6">
+          <div class="prose prose-lg text-center md:text-left w-full mb-2" x-html="heading"></div>
+          <div class="text-lg text-gray-700 text-center md:text-left w-full" x-html="description"></div>
+        </div>
+        <!-- Indicador de scroll superior -->
+        <div
+          x-show="showTopFade"
+          class="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-[var(--color-scheme-background)] to-transparent pointer-events-none z-10"
+        ></div>
+        <!-- Indicador de scroll inferior -->
+        <div
+          x-show="showBottomFade"
+          class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[var(--color-scheme-background)] to-transparent pointer-events-none z-10"
+        ></div>
+        <template x-for="(point, i) in points" :key="i">
+          <div
+            :id="'product-' + i"
+            class="flex items-center p-4 mb-4 rounded shadow relative group transition"
+            :style="`background:${cardBgColor}`"
+          >
+            <div class="flex flex-1 items-center gap-4">
+              <a
+                :href="point.product.url"
+                class="flex-shrink-0 w-24 h-24 rounded bg-white border flex items-center justify-center overflow-hidden group-hover:shadow-lg transition"
+              >
+                <img :src="point.product.imageUrl" alt="" class="w-20 h-20 object-contain" width="96" height="96">
+              </a>
+              <div class="flex-1 text-left flex flex-col justify-center">
+                <a
+                  :href="point.product.url"
+                  class="text-lg font-bold text-gray-900 hover:underline block mb-1"
+                  x-text="point.product.title"
+                ></a>
+                <p x-text="point.product.description" class="text-sm text-gray-600"></p>
+                <p x-text="point.product.price" class="text-base font-medium text-gray-800"></p>
+              </div>
+            </div>
+            <a
+              :href="point.product.url"
+              class="ml-4 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-lg text-white border-4 border-white shadow-lg transition-transform duration-200 ease-in-out"
+              :style="`width: ${hotspotSize}px; height: ${hotspotSize}px; background-color: ${hotspotColor};`"
+              aria-label="Ver producto"
+            >
+              <span class="drop-shadow" x-text="i + 1"></span>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('shopTheLookPack', () => ({
+      // Section settings
+      heading: `{{ section.settings.heading }}`,
+      description: `{{ section.settings.description }}`,
+      imagePosition: '{{ section.settings.image_position }}',
+      imageUrl: '{{ section.settings.main_image | img_url: "1200x1200" }}',
+      hotspotColor: '{{ section.settings.hotspot_color }}',
+      hotspotSize: {{ section.settings.hotspot_size }},
+      imageBgColor: '{{ section.settings.image_bg_color }}',
+      cardBgColor: '{{ section.settings.card_bg_color }}',
+
+      // Construimos el array de puntos con datos de producto
+      points: [
+        {% for block in section.blocks %}
+        {
+          x: {{ block.settings.x_coordinate }},
+          y: {{ block.settings.y_coordinate }},
+          product: {
+            title: '{{ all_products[block.settings.product].title | escape }}',
+            description: '{{ all_products[block.settings.product].description | strip_html | truncate: 120 }}',
+            price: '{{ all_products[block.settings.product].price | money }}',
+            url: '{{ all_products[block.settings.product].url }}',
+            imageUrl: '{{ all_products[block.settings.product].featured_image | img_url: "200x200" }}'
+          }
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ],
+
+      showTopFade: false,
+      showBottomFade: false,
+
+      init() {
+        this.updateScrollIndicators();
+      },
+
+      updateScrollIndicators() {
+        const panel = this.$refs.productPanel;
+        if (!panel) return;
+        this.showTopFade = panel.scrollTop > 0;
+        this.showBottomFade = panel.scrollTop + panel.clientHeight < panel.scrollHeight - 1;
+      },
+
+      scrollToProduct(idx) {
+        const panel = this.$refs.productPanel;
+        const el = document.getElementById('product-' + idx);
+        if (panel && el) {
+          // Solo hacer scroll en el panel, no en la ventana global
+          const panelTop = panel.scrollTop;
+          const elTop = el.offsetTop;
+          const elBottom = elTop + el.offsetHeight;
+          if (elTop < panelTop) {
+            panel.scrollTo({ top: elTop - 16, behavior: 'smooth' });
+          } else if (elBottom > panelTop + panel.clientHeight) {
+            panel.scrollTo({ top: elBottom - panel.clientHeight + 16, behavior: 'smooth' });
+          }
+        }
+      }
+    }))
+  })
+</script>
+
+{% schema %}
+{
+  "name": "Shop the Look Pack",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Título",
+      "default": "<h2>Packs Personalizados</h2>"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Texto descriptivo"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Posición de imagen",
+      "options": [
+        { "value": "left", "label": "Izquierda" },
+        { "value": "right", "label": "Derecha" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Imagen principal (cuadrada)"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Color de hotspot",
+      "default": "#6B5C4A"
+    },
+    {
+      "type": "range",
+      "id": "hotspot_size",
+      "label": "Tamaño de hotspot (px)",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "image_bg_color",
+      "label": "Color de fondo de la imagen",
+      "default": "#F5F1EC"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Color de fondo de las fichas de producto",
+      "default": "#FFFFFF"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "point",
+      "name": "Punto",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Producto asociado"
+        },
+        {
+          "type": "range",
+          "id": "x_coordinate",
+          "label": "Coordenada X (%)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_coordinate",
+          "label": "Coordenada Y (%)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    {
+      "name": "Shop the Look Pack"
+    }
+  ]
+}
+{% endschema %}
