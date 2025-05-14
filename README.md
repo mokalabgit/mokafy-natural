@@ -96,12 +96,24 @@ The objective is to allow each project to maintain its own version control and c
 | Repository Type | Repository | Branch | Purpose |
 |-----------------|------------|--------|---------|
 | Base repository | base       | base.base | Shared components and configurations |
-| Child theme repository | natural    | natural.base | Synced with `base.base` |
+| Child theme repository | natural    | natural.base | Synced with `base.base` (* blocked) |
 |                 |            | natural.natural | Theme-specific customizations |
-| Project repository | acme     | acme.natural | Synced with `natural.natural` (do not modify) |
+| Project repository | acme     | acme.natural | Synced with `natural.natural` (* blocked) |
 |                 |            | acme.acme | Customer-specific customizations |
 
 Each level inherits from the previous one but **maintains full independence for local customizations**.
+
+#### Rules for modifying synchronized branches
+
+Branches marked with `(* blocked)` are considered synchronized branches.  
+They exist to receive updates from their upstream repository (`base` → `natural`, `natural` → `acme`), and must not be directly modified.
+
+If a change is required at this level, the following process must be followed:
+
+1. Propose the modification by creating a feature branch and a pull request in the upstream repository (`base` or `natural`).
+2. Once approved and merged into upstream, the change will be pulled down during the next synchronization into the corresponding synchronized branch (`natural.base`, `acme.natural`).
+
+This process ensures that synchronized branches remain clean and only reflect changes approved at the appropriate level.
 
 ### Additional notes
 
