@@ -1,0 +1,188 @@
+{%- comment -%} sections/shop-the-look.liquid {%- endcomment -%}
+
+<div
+  x-data="shopTheLook()"
+  x-init="init()"
+  x-cloak
+  class="color-scheme color-scheme--{{ section.settings.color_scheme }}"
+>
+  <!-- Título richtext -->
+  <div class="w-full mb-6 prose prose-lg text-center" x-html="heading"></div>
+
+  <!-- Contenedor principal -->
+  <div class="shop-the-look page-width flex flex-col md:flex-row gap-6 items-stretch color-scheme color-scheme--{{ section.settings.color_scheme }}">
+    <!-- Imagen principal con puntos -->
+    <div class="relative w-full md:w-[65%] h-full">
+      <img
+        :src="imageUrl"
+        alt="Shop the Look"
+        class="w-full h-full object-cover"
+      >
+      <template x-for="(point, i) in points" :key="i">
+        <button
+          @click="selectPoint(i)"
+          class="absolute rounded-full transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform duration-200 ease-in-out"
+          x-bind:style="
+            `
+              top: ${point.y}%;
+              left: ${point.x}%;
+              width: ${hotspotSize}px;
+              height: ${hotspotSize}px;
+              background-color: ${hotspotColor};
+            `
+          "
+          x-bind:class="selected === i ? 'scale-125' : 'opacity-75'"
+          aria-label="Ver producto"
+        ></button>
+      </template>
+    </div>
+
+    <!-- Panel de información -->
+    <div class="w-full md:w-[35%] flex items-center justify-center h-full">
+      <div
+        x-show="selected !== null"
+        x-transition
+        class="w-full p-8 flex flex-col items-center space-y-6 text-center bg-[var(--color-scheme-background)] text-[var(--color-scheme-text)]"
+      >
+        <img
+          :src="points[selected].product.imageUrl"
+          alt=""
+          class="w-[256px] h-[256px] object-cover rounded"
+        >
+        <h4 x-text="points[selected].product.title" class="text-[1.6rem] font-bold"></h4>
+        <p x-text="points[selected].product.price" class="text-[1.4rem] font-medium text-gray-800"></p>
+        <a
+          :href="points[selected].product.url"
+          class="mt-6 bg-[var(--color-scheme-button_background)] text-[var(--color-scheme-button_label)] py-3 px-6 rounded transition text-[20px]"
+          >Ver producto</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('shopTheLook', () => ({
+      // Section settings
+      heading: `{{ section.settings.heading }}`,
+      imagePosition: '{{ section.settings.image_position }}',
+      imageUrl: '{{ section.settings.main_image | img_url: "1200x1200" }}',
+      hotspotColor: '{{ section.settings.hotspot_color }}',
+      hotspotSize: {{ section.settings.hotspot_size }},
+
+      // Construimos el array de puntos con datos de producto
+      points: [
+        {% for block in section.blocks %}
+        {
+          x: {{ block.settings.x_coordinate }},
+          y: {{ block.settings.y_coordinate }},
+          product: {
+            title: '{{ all_products[block.settings.product].title | escape }}',
+            price: '{{ all_products[block.settings.product].price | money }}',
+            url: '{{ all_products[block.settings.product].url }}',
+            imageUrl: '{{ all_products[block.settings.product].featured_image | img_url: "200x200" }}'
+          }
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ],
+
+      // Estado: primer punto seleccionado por defecto
+      selected: 0,
+
+      init() {
+        // selected ya inicializado a 0
+      },
+
+      selectPoint(idx) {
+        this.selected = idx;
+      },
+
+      closeInfo() {
+        this.selected = null;
+      }
+    }))
+  })
+</script>
+
+{% schema %}
+{
+  "name": "Shop the Look",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Título"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Posición de imagen",
+      "options": [
+        { "value": "left", "label": "Izquierda" },
+        { "value": "right", "label": "Derecha" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": "Imagen principal (cuadrada)"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Color de hotspot",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "hotspot_size",
+      "label": "Tamaño de hotspot (px)",
+      "min": 8,
+      "max": 64,
+      "step": 2,
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "point",
+      "name": "Punto",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Producto asociado"
+        },
+        {
+          "type": "range",
+          "id": "x_coordinate",
+          "label": "Coordenada X (%)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_coordinate",
+          "label": "Coordenada Y (%)",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "Shop the Look",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}
