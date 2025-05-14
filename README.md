@@ -44,3 +44,37 @@ The Tailwind setup is intentionally simple and designed to integrate smoothly wi
 - Unreviewed changes made via Shopify's visual editor **must not** be merged automatically into `base.base`.
 - Only components and configurations useful across all child themes should be pushed to the parent repository.
 - Keep the **base** repository as clean, stable, and reusable as possible.
+
+## Project Repositories
+
+In addition to the `base` repository and the child themes (`natural`, etc.), an additional layer is defined for real-world projects that use these themes.  
+The objective is to allow each project to maintain its own version control and customizations without interfering with the development and maintenance of the child theme.
+
+### Structure and workflow
+
+1. A **real project** (e.g., `acme`) starts as a **fork of the chosen child theme** (e.g., `natural`), specifically from the `natural.natural` branch.
+2. Inside the project repository (`acme`), a dedicated branch is created for customer-specific customizations, following the naming convention `[project].[project]`.  
+   Example: for the ACME project → `acme.acme`.
+3. The `acme.acme` branch is the only branch used to apply customer-specific customizations:
+   - Colors, logos, images
+   - Component customization
+   - Shopify-managed content adjustments
+4. The `natural.natural` branch (or the selected child theme branch) must be kept up to date as a reference but **must not be directly modified** within the project.
+5. Projects are **not expected** to create pull requests back to the child theme repository.  
+   Only if a project team detects a valuable improvement that could be reused across all themes, a pull request can be submitted under the following conditions:
+   - Client-specific customizations must **never** be pushed upstream.
+   - Only general improvements or reusable fixes should be proposed.
+6. It is recommended to tag stable versions of the project (`acme.acme`) before making significant changes to ensure traceability and easier future integrations.
+
+### Inheritance flow
+
+base.base → natural.base → natural.natural → acme.acme
+
+
+Each level inherits from the previous one but **maintains full independence for local customizations**.
+
+### Additional notes
+
+- This system allows the `natural` theme to evolve as a product with shared improvements without being polluted by customer-specific changes.
+- Real project repositories (`acme`, etc.) are free to evolve independently without any obligation to contribute back.
+- Each project team must maintain clear internal documentation of any changes made outside the official flow to avoid issues when updating.
