@@ -25,6 +25,20 @@ Below is the defined workflow:
 4. Use **cherry-pick** to selectively merge changes from secondary branches into `natural.base`.
 5. Create **pull requests** from `natural.base` to `base.base` to share common improvements with the parent repository.
 
+## Tailwind CSS & Development Environment
+
+All new components should preferably be built using **Tailwind CSS** to ensure consistency and maintainability.  
+We use [Tailwind CSS v4](https://tailwindcss.com/docs/installation) with native integration into the theme.
+
+### Environment setup
+
+1. Clone the repository.
+2. Run `npm install` to install dependencies.
+3. Use `npm run build:css` to generate the CSS once.
+4. Use `npm run watch:css` during development to auto-compile on file changes.
+
+The Tailwind setup is intentionally simple and designed to integrate smoothly with Shopify themes.
+
 ## Important Notes
 
 - Unreviewed changes made via Shopify's visual editor **must not** be merged automatically into `base.base`.
