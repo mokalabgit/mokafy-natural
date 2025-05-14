@@ -11,6 +11,35 @@ Below is the defined workflow:
   - **`natural.base`** → Main branch, always synced with `base.base`.
   - **`natural.natural`** → Branch for theme-specific customizations.
 
+## Summary of Repository Structure
+
+This is a high-level explanation of how our repositories are organized:
+
+1. **Base**  
+   This repository contains all our core development and is synced with Shopify's Dawn theme.  
+   Its `main` branch is a clone of the `main` branch of the official Dawn repository.  
+   The working branch for us is `base`.
+
+2. **Themes**  
+   These repositories contain the developments for specific theme products.  
+   We can have multiple theme repositories. In this case, `natural` is the first, but more can be created.  
+   Each theme repository has:
+   - A `base` branch cloned from our `base` repository, which allows synchronization (`base > natural` or `base > [theme]`).
+   - A main branch named after the theme itself (`natural`, `arabica`, etc.).
+
+3. **Projects**  
+   When starting a project, we decide which theme to use and create the project repository from the theme repository and its main branch.  
+   For example:
+   - If the project `acme` uses the `natural` theme:
+     - The `acme` repository will have a `natural` branch to allow synchronization (`natural > acme`).
+     - The main branch of the project will be named `acme`.
+   - Another example:
+     - If the project `zenith` uses the `arabica` theme:
+       - The `zenith` repository will have a `arabica` branch.
+       - The main branch of the project will be `zenith`.
+
+This model allows clean separation between product development (`base`, themes) and customer project customizations.
+
 ## Core Principles
 
 1. The **base** repository is used exclusively to maintain reusable components and shared configurations.
@@ -62,18 +91,15 @@ The objective is to allow each project to maintain its own version control and c
    - Only general improvements or reusable fixes should be proposed.
 6. It is recommended to tag stable versions of the project (`acme.acme`) before making significant changes to ensure traceability and easier future integrations.
 
-### Theme and project hierarchy
+### Theme and Project Hierarchy
 
-base repository
-└── base.base  (shared components and configuration)
-
-child theme repository (e.g., natural)
-├── natural.base     (synced with base.base)
-└── natural.natural  (theme-specific customizations)
-
-project repository (e.g., acme)
-├── acme.natural     (synced with natural.natural, do not modify directly)
-└── acme.acme        (customer-specific customizations)
+| Repository Type | Repository | Branch | Purpose |
+|-----------------|------------|--------|---------|
+| Base repository | base       | base.base | Shared components and configurations |
+| Child theme repository | natural    | natural.base | Synced with `base.base` |
+|                 |            | natural.natural | Theme-specific customizations |
+| Project repository | acme     | acme.natural | Synced with `natural.natural` (do not modify) |
+|                 |            | acme.acme | Customer-specific customizations |
 
 Each level inherits from the previous one but **maintains full independence for local customizations**.
 
